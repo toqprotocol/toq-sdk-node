@@ -49,6 +49,7 @@ for await (const msg of client.messages()) {
 | `status()` / `health()` | Daemon status |
 | `shutdown()` | Stop the daemon |
 | `logs()` / `clearLogs()` | Read/clear logs |
+| `logs(true)` | Stream logs in real time |
 | `diagnostics()` / `checkUpgrade()` | Diagnostics |
 | `rotateKeys()` | Rotate identity keys |
 | `exportBackup(passphrase)` | Create encrypted backup |
