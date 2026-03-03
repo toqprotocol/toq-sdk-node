@@ -1,0 +1,27 @@
+{
+  "name": "toq",
+  "version": "0.1.0",
+  "description": "Node SDK for toq protocol",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/toqprotocol/toq-sdk-node",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "tsc"
+  },
+  "devDependencies": {
+    "@types/jest": "^29",
+    "jest": "^29",
+    "ts-jest": "^29",
+    "typescript": "^5"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ]
+}
