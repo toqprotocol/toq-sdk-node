@@ -146,6 +146,12 @@ export class Client {
     });
   }
 
+  // ── Threads ──────────────────────────────────────────
+
+  async getThread(threadId: string): Promise<Record<string, unknown>> {
+    return this.json("GET", `/v1/threads/${threadId}`);
+  }
+
   // ── Peers ────────────────────────────────────────────
 
   async peers(): Promise<unknown[]> {
