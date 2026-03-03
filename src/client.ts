@@ -213,8 +213,32 @@ export class Client {
     });
   }
 
-  async logs(): Promise<unknown[]> {
+  async logs(follow = false): Promise<unknown[] | AsyncGenerator<unknown>> {
+    if (follow) {
+      return this.followLogs();
+    }
     return ((await this.json("GET", "/v1/logs")) as any).entries;
+  }
+
+  private async *followLogs(): AsyncGenerator<unknown> {
+    const resp = await this.request("GET", "/v1/logs", {
+      params: { follow: "true" },
+    });
+    const reader = resp.body?.getReader();
+    if (!reader) return;
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        yield JSON.parse(line.slice(6));
+      }
+    }
   }
 
   async clearLogs(): Promise<void> {
