@@ -1,5 +1,5 @@
 {
-  "name": "toq",
+  "name": "@toqprotocol/toq",
   "version": "0.1.0",
   "description": "Node SDK for toq protocol",
   "license": "Apache-2.0",
