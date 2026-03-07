@@ -171,15 +171,39 @@ describe("SDK against real daemon", () => {
     expect(Array.isArray(result)).toBe(true);
   });
 
-  it("cancelMessage returns ToqError (not supported)", async () => {
-    await expect(alice().cancelMessage("fake-id")).rejects.toThrow(ToqError);
-  });
-
-  it("sendStreaming to unreachable throws ToqError", async () => {
+  it("streamStart to unreachable throws ToqError", async () => {
     await expect(
-      alice().sendStreaming("toq://nonexistent.invalid/agent", "hello")
+      alice().streamStart("toq://nonexistent.invalid/agent")
     ).rejects.toThrow(ToqError);
   });
+
+  it("streaming end-to-end: alice streams to bob", async () => {
+    const bobClient = bob();
+    const received: any[] = [];
+
+    const listener = (async () => {
+      for await (const msg of bobClient.messages()) {
+        received.push(msg);
+        if (msg.type === "message.stream.end") break;
+      }
+    })();
+
+    await sleep(500);
+
+    const stream = await alice().streamStart(`toq://127.0.0.1:${BOB_PROTO}/bob`);
+    expect(stream).toHaveProperty("stream_id");
+    expect(stream).toHaveProperty("thread_id");
+
+    const chunk = await alice().streamChunk(stream.stream_id as string, "hello ");
+    expect(chunk).toHaveProperty("chunk_id");
+
+    const end = await alice().streamEnd(stream.stream_id as string);
+    expect(end).toHaveProperty("chunk_id");
+
+    await Promise.race([listener, sleep(5000)]);
+    const chunks = received.filter((m) => m.type === "message.stream.chunk");
+    expect(chunks.length).toBeGreaterThan(0);
+  }, 15000);
 
   it("getThread returns empty messages for unknown thread", async () => {
     const result = await alice().getThread("nonexistent-thread");
