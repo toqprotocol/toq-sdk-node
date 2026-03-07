@@ -6,12 +6,24 @@
  */
 
 import { connect, Client, ToqError } from "../src";
-import { execFileSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const TOQ_BIN = process.env.TOQ_BIN || join(__dirname, "../../toq/target/release/toq");
+function findBinary(): string {
+  if (process.env.TOQ_BIN) {
+    // Could be a bare name on PATH or an absolute path
+    try {
+      return execSync(`which ${process.env.TOQ_BIN}`, { encoding: "utf-8" }).trim();
+    } catch {
+      return process.env.TOQ_BIN;
+    }
+  }
+  return join(__dirname, "../../toq/target/release/toq");
+}
+
+const TOQ_BIN = findBinary();
 const ALICE_API = 29810;
 const ALICE_PROTO = 29809;
 const BOB_API = 29812;
@@ -19,10 +31,6 @@ const BOB_PROTO = 29811;
 
 let aliceDir: string;
 let bobDir: string;
-
-const HAS_BINARY = existsSync(TOQ_BIN);
-
-const describeWithDaemon = HAS_BINARY ? describe : describe.skip;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
