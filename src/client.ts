@@ -76,11 +76,12 @@ export class Client {
   // ── Messages ─────────────────────────────────────────
 
   async send(
-    to: string,
+    to: string | string[],
     text: string,
     options?: {
       thread_id?: string;
       reply_to?: string;
+      close_thread?: boolean;
       wait?: boolean;
       timeout?: number;
     }
@@ -88,6 +89,7 @@ export class Client {
     const body: Record<string, unknown> = { to, body: { text } };
     if (options?.thread_id) body.thread_id = options.thread_id;
     if (options?.reply_to) body.reply_to = options.reply_to;
+    if (options?.close_thread) body.close_thread = true;
     return this.json("POST", "/v1/messages", {
       json: body,
       params: {
@@ -133,17 +135,31 @@ export class Client {
     }
   }
 
-  async cancelMessage(messageId: string): Promise<void> {
-    await this.request("POST", `/v1/messages/${messageId}/cancel`);
+  async streamStart(
+    to: string,
+    options?: { thread_id?: string }
+  ): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = { to };
+    if (options?.thread_id) body.thread_id = options.thread_id;
+    return this.json("POST", "/v1/stream/start", { json: body });
   }
 
-  async sendStreaming(
-    to: string,
+  async streamChunk(
+    streamId: string,
     text: string
   ): Promise<Record<string, unknown>> {
-    return this.json("POST", "/v1/messages/stream", {
-      json: { to, body: { text } },
+    return this.json("POST", "/v1/stream/chunk", {
+      json: { stream_id: streamId, text },
     });
+  }
+
+  async streamEnd(
+    streamId: string,
+    options?: { close_thread?: boolean }
+  ): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = { stream_id: streamId };
+    if (options?.close_thread) body.close_thread = true;
+    return this.json("POST", "/v1/stream/end", { json: body });
   }
 
   // ── Threads ──────────────────────────────────────────
