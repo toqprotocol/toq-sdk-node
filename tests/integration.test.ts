@@ -20,6 +20,10 @@ const BOB_PROTO = 29811;
 let aliceDir: string;
 let bobDir: string;
 
+const HAS_BINARY = existsSync(TOQ_BIN);
+
+const describeWithDaemon = HAS_BINARY ? describe : describe.skip;
+
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
