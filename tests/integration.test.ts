@@ -239,4 +239,24 @@ describe("SDK against real daemon", () => {
     execFileSync(TOQ_BIN, ["up"], { env: { ...process.env, HOME: aliceDir } });
     await sleep(2000);
   }, 10000);
+
+  it("revoke removes approved peer", async () => {
+    const client = alice();
+    const fakeKey = "ed25519:dGVzdGtleQ==";
+    await client.approve(fakeKey);
+    // Should not throw
+    await client.revoke(fakeKey);
+  });
+
+  it("history returns messages array", async () => {
+    const client = alice();
+    const msgs = await client.history({ limit: 10 });
+    expect(Array.isArray(msgs)).toBe(true);
+  });
+
+  it("history accepts from filter", async () => {
+    const client = alice();
+    const msgs = await client.history({ limit: 5, from: "alice" });
+    expect(Array.isArray(msgs)).toBe(true);
+  });
 });

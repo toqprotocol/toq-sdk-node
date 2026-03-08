@@ -200,6 +200,24 @@ export class Client {
     });
   }
 
+  async revoke(id: string): Promise<void> {
+    await this.request("POST", `/v1/approvals/${encodeURIComponent(id)}/revoke`);
+  }
+
+  // ── History ──────────────────────────────────────────
+
+  async history(opts?: {
+    limit?: number;
+    from?: string;
+    since?: string;
+  }): Promise<unknown[]> {
+    const params: Record<string, string> = {};
+    if (opts?.limit) params.limit = String(opts.limit);
+    if (opts?.from) params.from = opts.from;
+    if (opts?.since) params.since = opts.since;
+    return ((await this.json("GET", "/v1/messages/history", { params })) as any).messages;
+  }
+
   // ── Discovery ────────────────────────────────────────
 
   async discover(host: string): Promise<unknown[]> {
