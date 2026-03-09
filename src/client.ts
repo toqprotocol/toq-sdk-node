@@ -174,12 +174,20 @@ export class Client {
     return ((await this.json("GET", "/v1/peers")) as any).peers;
   }
 
-  async block(publicKey: string): Promise<void> {
-    await this.request("POST", `/v1/peers/${encodeURIComponent(publicKey)}/block`);
+  async block(opts: string | { key?: string; from?: string }): Promise<void> {
+    if (typeof opts === "string") {
+      await this.request("POST", "/v1/block", { json: { key: opts } });
+    } else {
+      await this.request("POST", "/v1/block", { json: opts });
+    }
   }
 
-  async unblock(publicKey: string): Promise<void> {
-    await this.request("DELETE", `/v1/peers/${encodeURIComponent(publicKey)}/block`);
+  async unblock(opts: string | { key?: string; from?: string }): Promise<void> {
+    if (typeof opts === "string") {
+      await this.request("DELETE", "/v1/block", { json: { key: opts } });
+    } else {
+      await this.request("DELETE", "/v1/block", { json: opts });
+    }
   }
 
   // ── Approvals ────────────────────────────────────────
@@ -188,10 +196,14 @@ export class Client {
     return ((await this.json("GET", "/v1/approvals")) as any).approvals;
   }
 
-  async approve(id: string): Promise<void> {
-    await this.request("POST", `/v1/approvals/${encodeURIComponent(id)}`, {
-      json: { decision: "approve" },
-    });
+  async approve(opts: string | { key?: string; from?: string }): Promise<void> {
+    if (typeof opts === "string") {
+      await this.request("POST", `/v1/approvals/${encodeURIComponent(opts)}`, {
+        json: { decision: "approve" },
+      });
+    } else {
+      await this.request("POST", "/v1/approve", { json: opts });
+    }
   }
 
   async deny(id: string): Promise<void> {
@@ -200,8 +212,27 @@ export class Client {
     });
   }
 
-  async revoke(id: string): Promise<void> {
-    await this.request("POST", `/v1/approvals/${encodeURIComponent(id)}/revoke`);
+  async revoke(opts: string | { key?: string; from?: string }): Promise<void> {
+    if (typeof opts === "string") {
+      await this.request("POST", `/v1/approvals/${encodeURIComponent(opts)}/revoke`);
+    } else {
+      await this.request("POST", "/v1/revoke", { json: opts });
+    }
+  }
+
+  // ── Permissions ──────────────────────────────────────
+
+  async permissions(): Promise<{ approved: unknown[]; blocked: unknown[] }> {
+    return (await this.json("GET", "/v1/permissions")) as any;
+  }
+
+  async ping(address: string): Promise<{
+    agent_name: string;
+    address: string;
+    public_key: string | null;
+    reachable: boolean;
+  }> {
+    return (await this.json("POST", "/v1/ping", { json: { address } })) as any;
   }
 
   // ── History ──────────────────────────────────────────
