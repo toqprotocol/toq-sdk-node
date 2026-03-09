@@ -73,20 +73,20 @@ describe("Client methods with mocked fetch", () => {
     expect(result[0]).toHaveProperty("public_key", "k1");
   });
 
-  it("block calls POST with encoded key", async () => {
+  it("block calls POST /v1/block", async () => {
     mockFetch(null);
     await client.block("ed25519:abc");
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/v1/peers/"),
+      expect.stringContaining("/v1/block"),
       expect.objectContaining({ method: "POST" }),
     );
   });
 
-  it("unblock calls DELETE", async () => {
+  it("unblock calls DELETE /v1/block", async () => {
     mockFetch(null);
     await client.unblock("ed25519:abc");
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/v1/peers/"),
+      expect.stringContaining("/v1/block"),
       expect.objectContaining({ method: "DELETE" }),
     );
   });
