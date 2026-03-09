@@ -259,4 +259,31 @@ describe("SDK against real daemon", () => {
     const msgs = await client.history({ limit: 5, from: "alice" });
     expect(Array.isArray(msgs)).toBe(true);
   });
+
+  it("block by address pattern", async () => {
+    const client = alice();
+    await client.block({ from: "toq://evil.com/*" });
+    const perms = await client.permissions();
+    const blocked = perms.blocked as any[];
+    expect(blocked.some((r: any) => r.value === "toq://evil.com/*")).toBe(true);
+    // Clean up
+    await client.unblock({ from: "toq://evil.com/*" });
+  });
+
+  it("approve by address pattern", async () => {
+    const client = alice();
+    await client.approve({ from: "toq://trusted.com/*" });
+    const perms = await client.permissions();
+    const approved = perms.approved as any[];
+    expect(approved.some((r: any) => r.value === "toq://trusted.com/*")).toBe(true);
+    // Clean up
+    await client.revoke({ from: "toq://trusted.com/*" });
+  });
+
+  it("permissions returns approved and blocked", async () => {
+    const client = alice();
+    const perms = await client.permissions();
+    expect(Array.isArray(perms.approved)).toBe(true);
+    expect(Array.isArray(perms.blocked)).toBe(true);
+  });
 });
