@@ -141,19 +141,18 @@ describe("SDK against real daemon", () => {
     expect(result.length).toBe(0);
   });
 
-  it("block adds to peers, unblock removes", async () => {
+  it("block adds to permissions, unblock removes", async () => {
     const client = alice();
     const key = "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
     await client.block(key);
-    const afterBlock = await client.peers();
-    const blocked = afterBlock.find((p: any) => p.status === "blocked");
+    const afterBlock = await client.permissions();
+    const blocked = (afterBlock.blocked as any[]).find((r: any) => r.value?.includes("AAAA"));
     expect(blocked).toBeDefined();
-    expect((blocked as any).public_key).toContain("AAAA");
 
     await client.unblock(key);
-    const afterUnblock = await client.peers();
-    const stillBlocked = afterUnblock.find((p: any) => p.status === "blocked" && (p as any).public_key.includes("AAAA"));
+    const afterUnblock = await client.permissions();
+    const stillBlocked = (afterUnblock.blocked as any[]).find((r: any) => r.value?.includes("AAAA"));
     expect(stillBlocked).toBeUndefined();
   });
 
