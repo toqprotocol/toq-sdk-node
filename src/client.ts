@@ -1,6 +1,23 @@
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
+
 const DEFAULT_URL = "http://127.0.0.1:9010";
 const URL_ENV = "TOQ_API_URL";
 const DAEMON_NOT_RUNNING = "toq daemon is not running. Run 'toq up' first.";
+
+function resolveUrl(url?: string): string {
+  if (url) return url;
+  const env = process.env[URL_ENV];
+  if (env) return env;
+  const statePath = join(".toq", "state.json");
+  if (existsSync(statePath)) {
+    try {
+      const state = JSON.parse(readFileSync(statePath, "utf-8"));
+      if (state.api_port) return `http://127.0.0.1:${state.api_port}`;
+    } catch {}
+  }
+  return DEFAULT_URL;
+}
 
 export class ToqError extends Error {
   constructor(message: string) {
@@ -22,8 +39,7 @@ export interface Message {
 }
 
 export function connect(url?: string): Client {
-  const resolved = url || process.env[URL_ENV] || DEFAULT_URL;
-  return new Client(resolved);
+  return new Client(resolveUrl(url));
 }
 
 export class Client {

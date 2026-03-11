@@ -24,6 +24,21 @@ describe("connect", () => {
     expect(client).toBeInstanceOf(Client);
     delete process.env.TOQ_API_URL;
   });
+
+  it("reads port from workspace state.json", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const dir = fs.mkdtempSync(path.join(require("os").tmpdir(), "toq-"));
+    const origCwd = process.cwd();
+    process.chdir(dir);
+    fs.mkdirSync(path.join(dir, ".toq"));
+    fs.writeFileSync(path.join(dir, ".toq", "state.json"), '{"api_port": 9042}');
+    delete process.env.TOQ_API_URL;
+    const client = connect();
+    expect(client).toBeInstanceOf(Client);
+    process.chdir(origCwd);
+    fs.rmSync(dir, { recursive: true });
+  });
 });
 
 describe("Client", () => {
