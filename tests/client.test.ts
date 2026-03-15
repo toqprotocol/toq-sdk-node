@@ -12,17 +12,17 @@ describe("connect", () => {
   });
 
   it("reads from env var", () => {
-    process.env.TOQ_API_URL = "http://custom:1234";
+    process.env.TOQ_URL = "http://custom:1234";
     const client = connect();
     expect(client).toBeInstanceOf(Client);
-    delete process.env.TOQ_API_URL;
+    delete process.env.TOQ_URL;
   });
 
   it("explicit URL overrides env var", () => {
-    process.env.TOQ_API_URL = "http://from-env:1234";
+    process.env.TOQ_URL = "http://from-env:1234";
     const client = connect("http://explicit:5678");
     expect(client).toBeInstanceOf(Client);
-    delete process.env.TOQ_API_URL;
+    delete process.env.TOQ_URL;
   });
 
   it("reads port from workspace state.json", () => {
@@ -33,7 +33,7 @@ describe("connect", () => {
     process.chdir(dir);
     fs.mkdirSync(path.join(dir, ".toq"));
     fs.writeFileSync(path.join(dir, ".toq", "state.json"), '{"port": 9042}');
-    delete process.env.TOQ_API_URL;
+    delete process.env.TOQ_URL;
     const client = connect();
     expect(client).toBeInstanceOf(Client);
     process.chdir(origCwd);

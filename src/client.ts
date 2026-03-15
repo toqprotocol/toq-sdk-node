@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 
 const DEFAULT_URL = "http://127.0.0.1:9009";
-const URL_ENV = "TOQ_API_URL";
+const URL_ENV = "TOQ_URL";
 const DAEMON_NOT_RUNNING = "toq daemon is not running. Run 'toq up' first.";
 
 function resolveUrl(url?: string): string {
