@@ -393,14 +393,27 @@ export class Client {
 
   async addHandler(
     name: string,
-    command: string,
+    command: string = "",
     options?: {
+      provider?: string;
+      model?: string;
+      prompt?: string;
+      prompt_file?: string;
+      max_turns?: number;
+      auto_close?: boolean;
       filter_from?: string[];
       filter_key?: string[];
       filter_type?: string[];
     }
   ): Promise<Record<string, unknown>> {
-    const body: Record<string, unknown> = { name, command };
+    const body: Record<string, unknown> = { name };
+    if (command) body.command = command;
+    if (options?.provider) body.provider = options.provider;
+    if (options?.model) body.model = options.model;
+    if (options?.prompt) body.prompt = options.prompt;
+    if (options?.prompt_file) body.prompt_file = options.prompt_file;
+    if (options?.max_turns !== undefined) body.max_turns = options.max_turns;
+    if (options?.auto_close) body.auto_close = true;
     if (options?.filter_from) body.filter_from = options.filter_from;
     if (options?.filter_key) body.filter_key = options.filter_key;
     if (options?.filter_type) body.filter_type = options.filter_type;

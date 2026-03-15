@@ -173,6 +173,27 @@ describe("Client methods with mocked fetch", () => {
     );
   });
 
+  it("addHandler sends LLM fields", async () => {
+    mockFetch({ status: "added", name: "chat" });
+    const result = await client.addHandler("chat", "", {
+      provider: "openai",
+      model: "gpt-4o",
+      prompt: "You are helpful",
+      max_turns: 5,
+      auto_close: true,
+    });
+    expect(result).toHaveProperty("status", "added");
+    const call = (global.fetch as jest.Mock).mock.calls[0];
+    const body = JSON.parse(call[1].body);
+    expect(body.name).toBe("chat");
+    expect(body.provider).toBe("openai");
+    expect(body.model).toBe("gpt-4o");
+    expect(body.prompt).toBe("You are helpful");
+    expect(body.max_turns).toBe(5);
+    expect(body.auto_close).toBe(true);
+    expect(body.command).toBeUndefined();
+  });
+
   it("removeHandler calls DELETE /v1/handlers/{name}", async () => {
     mockFetch({ status: "removed", name: "test" });
     const result = await client.removeHandler("test");
